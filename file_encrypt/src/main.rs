@@ -5,10 +5,10 @@ use crypto::*;
 
 fn main(){
     let args: Vec<String> = env::args().collect();
-    if args[1] == "-c".to_string(){
-        verify(&args[2],&args[3]);
+    if args[1] == "-r".to_string(){
+        verify(&args[2]);
         }
-    else if args[1] == "-r".to_string(){
+    else if args[1] == "-n".to_string(){
     store();
     }
 }

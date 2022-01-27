@@ -45,24 +45,22 @@ pub fn store(){
         .expect("Err to read_line");
     let salt = salt();
     let store = db.store_password(&password,&salt);
-    let mut file_salt = fs::File::create("salt")
-        .expect("can not create file");
-    let mut file_store = fs::File::create("store")
+    let mut secret_file = fs::File::create("secret")
         .expect("can not create file");
     let salt:&[u8] = &salt;
     let store:&[u8] = &store;
         unsafe {
-            let buf = str::from_utf8_unchecked(salt);
-            write!(file_salt,"{}",buf)
-                .expect("Err to Write");
             let buf = str::from_utf8_unchecked(store);
-            write!(file_store,"{}",buf)
+            write!(secret_file,"{}",buf)
+                .expect("Err to Write");
+            let buf = str::from_utf8_unchecked(salt);
+            write!(secret_file,"{}",buf)
                 .expect("Err to Write");
         }
 }
-pub fn verify(salt:&str,store:&str) {
-    let salt = open_file(salt);
-    let mut store = open_file(store);
+pub fn verify(file:&str) {
+    let mut store= open_file(file).0;
+    let salt = open_file(file).1;
     let mut db = PasswordDB {
         pbkdf2_interations: NonZeroU32::new(100_000).unwrap(),
     };
@@ -71,11 +69,15 @@ pub fn verify(salt:&str,store:&str) {
         .expect("Err to read_line");
     let _ = db.verify_password(&password,&salt,&mut store);
 }
-pub fn open_file(file:&str) -> Vec<u8>{
+
+pub fn open_file(file:&str) -> (Vec<u8>,Vec<u8>){
     let file = PathBuf::from(file);
     let mut file = fs::File::open(file)
         .expect("Err to open file");
-    let mut salt = Vec::new();
-        file.read_to_end(&mut salt).unwrap();
-salt
+    let mut temp = Vec::new();
+        file.read_to_end(&mut temp).unwrap();
+    let secret = temp[0..63].to_vec();
+    let salt = temp[64..].to_vec();
+    
+(secret,salt)
 }
