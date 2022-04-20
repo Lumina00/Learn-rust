@@ -1,9 +1,0 @@
-[package]
-name = "replace_files"
-version = "0.2.0"
-authors = ["lumina.static@gmail.com"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
